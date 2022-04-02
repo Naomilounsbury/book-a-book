@@ -17,7 +17,7 @@ const typeDefs = gql`
     image: String
     link: String
   }
-  type BookInput {
+  input BookInput {
     authors: [String]
     description: String!
     title: String!
