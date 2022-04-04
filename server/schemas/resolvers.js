@@ -1,6 +1,5 @@
 const { AuthenticationError } = require("apollo-server-express");
-const { User, Book } = require("../models");
-const bookSchema = require("../models/Book");
+const { User } = require("../models");
 
 const { signToken } = require("../utils/auth");
 
@@ -8,11 +7,7 @@ const resolvers = {
   Query: {
     me: async (parent, args, context) => {
       if (context.user) {
-        const userData = await User.findOne({ _id: context.user._id })
-          .select("-__v -password")
-          .populate("thoughts")
-          .populate("friends");
-
+        const userData = await User.findOne({ _id: context.user._id });
         return userData;
       }
 
@@ -21,9 +16,9 @@ const resolvers = {
   },
 
   Mutation: {
-    addUser: async (parent, { username, email, password }) => {
+    addUser: async (parent, args) => {
       // First we create the user
-      const user = await User.create({ username, email, password });
+      const user = await User.create(args);
       // To reduce friction for the user, we immediately sign a JSON Web Token and log the user in after they are created
       const token = signToken(user);
       // Return an `Auth` object that consists of the signed token and user's information
@@ -53,24 +48,25 @@ const resolvers = {
       return { token, user };
     },
     saveBook: async (parent, context) => {
-      const book = await Book.create({ args, userId: context.user.id });
-
-      await User.findOneAndUpdate(
+      // const book = await Book.create({ args, userId: context.user.id });
+      console.log(context);
+      const updatedBook = await User.findOneAndUpdate(
         { _id: context.user._id },
-        { $push: { savedBooks: bookSchema._id } },
+        { $push: { saveBook: bookData } },
         { new: true }
       );
 
-      return book;
+      return updatedBook;
     },
 
-    removeBook: async (parent, { bookId }) => {
+    removeBook: async (parent, { bookId }, context) => {
       //might need an if statement saying if logged in return this
-      return Book.findOneAndDelete(
-        { _id: bookId },
+      const updatedBook = await User.findOneAndDelete(
+        { _id: context.user.id },
         { $pull: { savedBooks: { bookId } } },
         { new: true }
       );
+      return updatedBook;
     },
   },
 };

@@ -1,3 +1,4 @@
+import { gql } from "@apollo/client";
 export const GET_ME = gql`
   {
     me {
@@ -5,7 +6,7 @@ export const GET_ME = gql`
       username
       email
       bookCount
-      savedBooks {
+      saveBooks {
         bookId
         authors
         description
