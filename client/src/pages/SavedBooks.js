@@ -61,7 +61,7 @@ const SavedBooks = () => {
       removeBook({
         variables: { bookId: bookId },
       });
-   
+      window.location.href = "/saved";
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
