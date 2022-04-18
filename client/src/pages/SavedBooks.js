@@ -18,8 +18,10 @@ const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
   const [removeBook, { error }] = useMutation(REMOVE_BOOK);
 
-  const userData = data?.me || {};
-  console.log(userData)
+  console.log({ data });
+  const userData = data?.me[0] || {};
+
+  console.log(userData);
   // use this to determine if `useEffect()` hook needs to run again
   // userDataLength = Object.keys(userData).length;
 
@@ -54,12 +56,12 @@ const SavedBooks = () => {
     if (!token) {
       return false;
     }
-
+    console.log(bookId);
     try {
-      const { data } = await removeBook({
-        variables: { bookId },
+      removeBook({
+        variables: { bookId: bookId },
       });
-
+      window.location.href = "/";
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
@@ -81,14 +83,14 @@ const SavedBooks = () => {
       </Jumbotron>
       <Container>
         <h2>
-          {userData.savedBooks.length
+          {userData.savedBooks?.length
             ? `Viewing ${userData.savedBooks.length} saved ${
-                userData.savedBooks.length === 1 ? "book" : "books"
+                userData.savedBooks?.length === 1 ? "book" : "books"
               }:`
             : "You have no saved books!"}
         </h2>
         <CardColumns>
-          {userData.savedBooks.map((book) => {
+          {userData.savedBooks?.map((book) => {
             return (
               <Card key={book.bookId} border="dark">
                 {book.image ? (

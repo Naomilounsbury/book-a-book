@@ -8,7 +8,8 @@ const resolvers = {
     me: async (parent, args, context) => {
       if (context.user) {
         const userData = await User.findOne({ _id: context.user._id });
-        return userData;
+
+        return [userData];
       }
 
       throw new AuthenticationError("Not logged in");
@@ -47,26 +48,33 @@ const resolvers = {
       // Return an `Auth` object that consists of the signed token and user's information
       return { token, user };
     },
-    saveBook: async (parent, context) => {
+    saveBook: async (parent, { bookData }, context) => {
       // const book = await Book.create({ args, userId: context.user.id });
-      console.log(context);
-      const updatedBook = await User.findOneAndUpdate(
-        { _id: context.user._id },
-        { $push: { saveBook: bookData } },
-        { new: true }
-      );
 
-      return updatedBook;
+      if (context.user) {
+        const updatedBook = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $push: { savedBooks: bookData } },
+          { new: true }
+        );
+
+        return updatedBook;
+      }
+      throw new AuthenticationError("Log in");
     },
 
     removeBook: async (parent, { bookId }, context) => {
       //might need an if statement saying if logged in return this
-      const updatedBook = await User.findOneAndDelete(
+      console.log(bookId);
+
+      console.log(context.user, "TOTOTO");
+      const updatedUser = await User.findOneAndUpdate(
         { _id: context.user.id },
         { $pull: { savedBooks: { bookId } } },
         { new: true }
       );
-      return updatedBook;
+      console.log(updatedUser, "yayayayayyayaya");
+      return [updatedUser];
     },
   },
 };
