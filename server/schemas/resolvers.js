@@ -68,15 +68,15 @@ const resolvers = {
       console.log(bookId);
 
       console.log(context.user, "TOTOTO");
-      const updatedUser = await User.findOneAndUpdate(
-        { _id: context.user.id },
-        { $pull: { savedBooks: { bookId } } },
-        { new: true }
-      );
-      console.log(updatedUser, "yayayayayyayaya");
-      return [updatedUser];
+      if (context.user) {
+        return User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId } } },
+          { new: true }
+        );
+      }
+      throw new AuthenticationError("log in");
     },
   },
 };
-
 module.exports = resolvers;
